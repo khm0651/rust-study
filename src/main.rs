@@ -30,9 +30,10 @@ fn main() {
         );
     }
 
-    let mut bagel_calories: Vec<f32> = Vec::new();
-    bagel_box
-        .map(|bagle| bagel_calories.push(calc_calorie_from_elements(bagle[0], bagle[1], bagle[2])));
+    let mut bagel_calories: Vec<f32> = bagel_box
+        .iter()
+        .map(|bagle| calc_calorie_from_elements(bagle[0], bagle[1], bagle[2]))
+        .collect();
 
     for calorie in bagel_calories {
         println!("a bagel with {} calories", calorie);
