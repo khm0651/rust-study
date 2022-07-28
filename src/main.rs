@@ -4,6 +4,6 @@ fn main() {
     println!("ready to serve {} of {} bagels", ready, bagel);
 
     println!("serving..!!");
-    let need = bagel;
+    let need = bagel - ready;
     println!("now {} bagels left to serve", need);
 }
