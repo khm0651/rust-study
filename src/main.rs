@@ -15,7 +15,20 @@ fn main() {
     println!(
         "a bagel with {} calories",
         calc_calorie_from_elements(1.0, 1.0, 1.0)
-    )
+    );
+
+    let bagel1: [f32; 3] = [1.0, 1.0, 1.0];
+    let bagel2: [f32; 3] = [2.0, 1.0, 3.0];
+    let bagel3: [f32; 3] = [3.0, 1.0, 2.0];
+
+    let bagel_box = [bagel1, bagel2, bagel3];
+
+    for bagel in bagel_box {
+        println!(
+            "a bagel with {} calories",
+            calc_calorie_from_elements(bagel[0], bagel[1], bagel[2])
+        );
+    }
 }
 
 fn calc_calorie_from_elements(flour_g: f32, sugar_g: f32, butter_g: f32) -> f32 {
