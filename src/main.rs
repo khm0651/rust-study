@@ -32,7 +32,7 @@ fn main() {
 
     let mut bagel_calories: Vec<f32> = bagel_box
         .iter()
-        .map(|bagle| calc_calorie_from_elements(bagle[0], bagle[1], bagle[2]))
+        .map(|bagle| calc_calorie_from_elements_array(*bagle))
         .collect();
 
     for calorie in bagel_calories {
@@ -40,9 +40,17 @@ fn main() {
     }
 }
 
+fn calc_calorie_from_elements_array(flour_sugar_butter: [f32; 3]) -> f32 {
+    calc_calorie_from_elements(
+        flour_sugar_butter[0],
+        flour_sugar_butter[1],
+        flour_sugar_butter[2],
+    )
+}
+
 fn calc_calorie_from_elements(flour_g: f32, sugar_g: f32, butter_g: f32) -> f32 {
     let flour_calories = flour_g * 3.55;
     let sugar_calories = sugar_g * 3.86;
     let butter_calories = butter_g * 7.16;
-    return ((flour_calories + sugar_calories + butter_calories * 100.0) as i32) as f32 / 100.0;
+    ((flour_calories + sugar_calories + butter_calories * 100.0) as i32) as f32 / 100.0
 }
