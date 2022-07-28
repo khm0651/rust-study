@@ -1,9 +1,14 @@
+const STARTING_BAGELS: i32 = 10;
+const READY_TO_SERVE_BAGELS: i32 = 2;
+
 fn main() {
-    let bagel = 10;
-    let ready = 2;
-    println!("ready to serve {} of {} bagels", ready, bagel);
+    let mut bagel = STARTING_BAGELS;
+    println!(
+        "ready to serve {} of {} bagels",
+        READY_TO_SERVE_BAGELS, bagel
+    );
 
     println!("serving..!!");
-    let need = bagel - ready;
-    println!("now {} bagels left to serve", need);
+    bagel -= READY_TO_SERVE_BAGELS;
+    println!("now {} bagels left to serve", bagel);
 }
