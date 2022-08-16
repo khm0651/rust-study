@@ -1,84 +1,34 @@
-use std::fmt::format;
+use std::cell::RefCell;
+use std::rc::Rc;
 
 #[derive(Debug)]
-struct CubeSat {
-    id: u64,
+struct GroundStation {
+    radio_req: f64,
 }
 
-impl CubeSat {
-    fn recv(&self, mailBox: &mut Mailbox) -> Option<Message> {
-        mailBox.deliver(&self)
-    }
-}
-
-#[derive(Debug)]
-struct Mailbox {
-    messages: Vec<Message>,
-}
-
-impl Mailbox {
-    fn post(&mut self, msg: Message) {
-        self.messages.push(msg)
-    }
-
-    fn deliver(&mut self, recipient: &CubeSat) -> Option<Message> {
-        for i in 0..self.messages.len() {
-            if self.messages[i].to == recipient.id {
-                let msg = self.messages.remove(i);
-                return Some(msg);
-            }
-        }
-
-        None
-    }
-}
-
-#[derive(Debug)]
-struct Message {
-    to: u64,
-    content: String,
-}
-
-struct GroundStation {}
-
-/// &self는 자신에 대한 읽기 전용 참조만 사용한다는 의미
-/// CueeSat 인스턴스의 읽기, 쓰기 소유권 요청 대신 대여를 요청한다. (쓰기를 요청하는 이유는 벡터의 값을 수정하는 메서드이기 때문에)
-/// msg는 Message인스턴스의 완전한 소유권을 요청한다.
-impl GroundStation {
-    fn connect(&self, sat_id: u64) -> CubeSat {
-        CubeSat { id: sat_id }
-    }
-
-    fn send(&self, mailBox: &mut Mailbox, msg: Message) {
-        mailBox.post(msg)
-    }
-}
-
-fn fetch_sat_ids() -> Vec<u64> {
-    vec![1, 2, 3]
-}
+/// RC<T>는 스레드에 대해 안전하지 않다.
+/// 다중 스레드 코드에서는 RC<T>를 Arc<T>로, Rc<RefCell<T>>를 Arc<Mutex<T>>로 대체하는 것이 낫다.
+/// arc는 원자적 참조 카운터(atomic reference counter)를 의미
 
 fn main() {
-    let mut mail = Mailbox { messages: vec![] };
+    let base: Rc<RefCell<GroundStation>> = Rc::new(RefCell::new(GroundStation { radio_req: 10.0 }));
 
-    let base = GroundStation {};
+    println!("base: {:?}", base);
 
-    let sat_ids = fetch_sat_ids();
+    {
+        let mut base_2 = base.borrow_mut();
+        base_2.radio_req -= 5.0;
+        println!("base2: {:?}", base_2);
+        println!("base in inner fn: {:?}", base); // inner fn 내에서 base_2에 대여 되었으며 접근 가능하지 않음
 
-    for sat_id in sat_ids {
-        let sat = base.connect(sat_id);
-        let msg = Message {
-            to: sat.id,
-            content: format!("i'm hamin {}", sat.id),
-        };
-        base.send(&mut mail, msg)
+        //스코프가 종료되고 base_2변수에 대여한 소유권을 다시 쓸 수 있게 됌
     }
 
-    let sat_ids = fetch_sat_ids();
+    println!("base in main fn: {:?}", base); //소유권을 다시 얻어서 접근 가능함.
 
-    for sat_id in sat_ids {
-        let sat = base.connect(sat_id);
-        let msg = sat.recv(&mut mail);
-        println!("{:?}: {:?}", sat, msg);
-    }
+    let mut base_3 = base.borrow_mut();
+    base_3.radio_req += 7.0;
+
+    println!("base3: {:?}", base_3);
+    println!("base in inner fn: {:?}", base); // main fn 내에서 base_3에 대여 되었으며 접근 가능하지 않음
 }
