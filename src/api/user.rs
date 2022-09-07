@@ -11,3 +11,13 @@ pub async fn get_users() -> impl Responder {
         Err(e) => HttpResponse::from_error(e),
     }
 }
+
+pub async fn post_user(user: Json<User>) -> impl Responder {
+    let user = user.into_inner();
+    unsafe { USER_LIST.push(user.clone()) }
+    let result = serde_json::to_string(&user);
+    match result {
+        Ok(result) => HttpResponse::Ok().body(result),
+        Err(e) => HttpResponse::from_error(e),
+    }
+}
