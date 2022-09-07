@@ -1,4 +1,4 @@
-use crate::api::health_check;
+use crate::api::{get_users, health_check};
 use crate::configuration::Settings;
 use actix_web::dev::Server;
 use actix_web::web::Data;
@@ -39,6 +39,7 @@ async fn run(listener: TcpListener, base_url: String) -> Result<Server, anyhow::
     let server = HttpServer::new(move || {
         App::new()
             .route("/health_check", web::get().to(health_check))
+            .route("/api/v1/user", web::get().to(get_users))
             .app_data(base_url.clone())
     })
     .listen(listener)?
