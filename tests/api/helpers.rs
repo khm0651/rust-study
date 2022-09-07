@@ -1,13 +1,10 @@
 use actix::configuration::get_configuration;
-use actix::model::User;
 use actix::startup::Application;
 
 pub struct TestApp {
     pub address: String,
     pub port: u16,
 }
-
-pub static mut USER_LIST: Vec<User> = vec![];
 
 pub async fn spawn_app() -> TestApp {
     let configuration = {
