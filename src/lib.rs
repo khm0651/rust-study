@@ -6,6 +6,7 @@ extern crate core;
 
 pub mod api;
 pub mod configuration;
+pub mod model;
 pub mod startup;
 
 // #[derive(Serialize, Deserialize, Debug, Clone)]
