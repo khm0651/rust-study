@@ -37,3 +37,19 @@ pub async fn delete_user(user_id: Path<u16>) -> impl Responder {
         Err(e) => HttpResponse::from_error(e),
     }
 }
+
+pub async fn patch_user(user: Json<User>) -> impl Responder {
+    let user = user.into_inner();
+    unsafe {
+        let position = USER_LIST
+            .binary_search_by_key(&user.user_id, |user| user.user_id)
+            .expect("not found user");
+        USER_LIST.remove(position);
+        USER_LIST.insert(position, user.clone());
+    }
+    let result = serde_json::to_string(&user);
+    match result {
+        Ok(result) => HttpResponse::Ok().body(result),
+        Err(e) => HttpResponse::from_error(e),
+    }
+}

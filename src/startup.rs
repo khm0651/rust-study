@@ -1,4 +1,4 @@
-use crate::api::{delete_user, get_users, health_check, post_user};
+use crate::api::{delete_user, get_users, health_check, patch_user, post_user};
 use crate::configuration::Settings;
 use actix_web::dev::Server;
 use actix_web::web::Data;
@@ -42,6 +42,7 @@ async fn run(listener: TcpListener, base_url: String) -> Result<Server, anyhow::
             .route("/api/v1/user", web::get().to(get_users))
             .route("/api/v1/user", web::post().to(post_user))
             .route("/api/v1/user/{user_id}", web::delete().to(delete_user))
+            .route("/api/v1/user", web::patch().to(patch_user))
             .app_data(base_url.clone())
     })
     .listen(listener)?
