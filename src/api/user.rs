@@ -12,6 +12,23 @@ pub async fn get_users() -> impl Responder {
     }
 }
 
+pub async fn get_user(user_id: Path<u16>) -> impl Responder {
+    let user_id = user_id.into_inner();
+    let user: &User;
+    unsafe {
+        let position = USER_LIST
+            .iter()
+            .position(|target| target.user_id == user_id)
+            .expect("not found user");
+        user = USER_LIST.get(position).expect("out of index")
+    }
+    let result = serde_json::to_string(user);
+    match result {
+        Ok(result) => HttpResponse::Ok().body(result),
+        Err(e) => HttpResponse::from_error(e),
+    }
+}
+
 pub async fn post_user(user: Json<User>) -> impl Responder {
     let user = user.into_inner();
     unsafe { USER_LIST.push(user.clone()) }
@@ -27,7 +44,8 @@ pub async fn delete_user(user_id: Path<u16>) -> impl Responder {
     let remove_result: User;
     unsafe {
         let position = USER_LIST
-            .binary_search_by_key(&user_id, |user| user.user_id)
+            .iter()
+            .position(|target| target.user_id == user_id)
             .expect("not found user");
         remove_result = USER_LIST.remove(position)
     }
@@ -42,7 +60,8 @@ pub async fn patch_user(user: Json<User>) -> impl Responder {
     let user = user.into_inner();
     unsafe {
         let position = USER_LIST
-            .binary_search_by_key(&user.user_id, |user| user.user_id)
+            .iter()
+            .position(|target| target.user_id == user.user_id)
             .expect("not found user");
         USER_LIST.remove(position);
         USER_LIST.insert(position, user.clone());
